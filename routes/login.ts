@@ -38,7 +38,38 @@ module.exports = function login() {
 
   return (req: Request, res: Response, next: NextFunction) => {
     verifyPreLoginChallenges(req); // vuln-code-snippet hide-line
-    models.sequelize
+
+    UserModel.findOne({
+      where: {
+        email: req.body.email,
+        password: security.hash(req.body.password),
+        deletedAt: null,
+      },
+    })
+      .then((authenticatedUser) => {
+        // vuln-code-snippet neutral-line loginAdminChallenge loginBenderChallenge loginJimChallenge
+        const user = utils.queryResultToJson(authenticatedUser);
+        if (user.data?.id && user.data.totpSecret !== "") {
+          res.status(401).json({
+            status: "totp_token_required",
+            data: {
+              tmpToken: security.authorize({
+                userId: user.data.id,
+                type: "password_valid_needs_second_factor_token",
+              }),
+            },
+          });
+        } else if (user.data?.id) {
+          afterLogin(user, res, next);
+        } else {
+          res.status(401).send(res.__("Invalid email or password."));
+        }
+      })
+      .catch((error: Error) => {
+        next(error);
+      });
+
+    /* models.sequelize
       .query(
         `SELECT * FROM Users WHERE email = '${
           req.body.email || ""
@@ -68,7 +99,7 @@ module.exports = function login() {
       })
       .catch((error: Error) => {
         next(error);
-      });
+      }); */
   };
   // vuln-code-snippet end loginAdminChallenge loginBenderChallenge loginJimChallenge
 
