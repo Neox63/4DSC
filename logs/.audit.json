@@ -1,0 +1,14 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 2
+    },
+    "auditLog": "/Users/mathis/Documents/Projects/4DSC/logs/.audit.json",
+    "files": [
+        {
+            "date": 1679063294991,
+            "name": "/Users/mathis/Documents/Projects/4DSC/logs/access.log.2023-03-17",
+            "hash": "054a581cdbbd816c9abe31fabfb78b21"
+        }
+    ]
+}
