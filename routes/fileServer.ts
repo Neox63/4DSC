@@ -27,6 +27,12 @@ module.exports = function servePublicFiles() {
     if (file && (endsWithAllowlistedFileType(file) || file === "incident-support.kdbx")) {
       file = security.cutOffPoisonNullByte(file);
 
+      if (file.toLowerCase() === "acquisitions.md") {
+        res.status(403);
+        next(new Error("Access to this file is not allowed!"));
+        return;
+      }
+
       challengeUtils.solveIf(challenges.directoryListingChallenge, () => {
         return file.toLowerCase() === "acquisitions.md";
       });
